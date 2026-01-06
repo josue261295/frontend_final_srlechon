@@ -1,21 +1,39 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // <--- Importamos esto
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../config/axios';
+import ErrorMessage from './errorMessage';
+import { isAxiosError } from 'axios';
+
+
 
 export default function Login() {
+  const[message, setMessage] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // <--- Activamos la navegación
+  const navigate = useNavigate(); 
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // AQUÍ VALIDARÍAMOS CON TU BASE DE DATOS (USUARIO)
-    // Por ahora, simulamos que el login es correcto:
-    console.log("Logueado con:", email);
-    
-    // Redirigir al Dashboard
-    navigate('/admin/resumen'); 
-  };
+
+const {register, handleSubmit, formState: { errors }} = useForm();
+
+const handaleLogin = async (formData) => {
+  try {
+    const {data} = await api.post('/api/auth/login', formData);
+    navigate('/admin/resumen');
+  } catch (error) {
+    if (isAxiosError(error) && error.response){
+      setMessage(error.response.data.message);
+
+      setMessage(error.response.data.error);
+
+
+
+
+    }
+  }
+
+}
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-orange-50">
@@ -33,7 +51,13 @@ export default function Login() {
           </p>
         </div>
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
+
+
+{message.length > 0 &&  <ErrorMessage>{message}</ErrorMessage>}
+
+
+
+        <form className="space-y-6" onSubmit={handleSubmit(handaleLogin)}>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Correo Electrónico
@@ -46,9 +70,19 @@ export default function Login() {
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
                 placeholder="admin@srlechon.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+               {...register("email", {
+                  required: "El email es obligatorio",
+                  pattern: {
+                    value: /\S+@\S+\.\S+/,
+                    message: "E-mail no válido",
+                  },
+                })}
               />
+
+                {errors.email && (
+                  < ErrorMessage>{errors.email.message}</ErrorMessage>
+                )}
+
             </div>
           </div>
 
@@ -64,9 +98,18 @@ export default function Login() {
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+
+                {...register("password", {
+                  required: "La contraseña es obligatoria",
+                })}
+
+
               />
+              {errors.password && (
+                  < ErrorMessage>{errors.password.message}</ErrorMessage>
+                )}
+
+
             </div>
           </div>
 
