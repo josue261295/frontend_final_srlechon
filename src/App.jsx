@@ -5,6 +5,11 @@ import Dashboard from "./pages/Dashboard";
 import Menu from "./pages/Menu";
 import Pedidos from "./pages/Pedidos";
 import Usuarios from "./pages/Usuarios";
+import Reportes from "./pages/Reportes"; 
+import Deudas from "./pages/Deudas";
+
+
+
 
 export default function App() {
   return (
@@ -22,6 +27,8 @@ export default function App() {
           <Route path="menu" element={<Menu />} />
           <Route path="pedidos" element={<Pedidos />} />
           <Route path="usuarios" element={<Usuarios />} />
+          <Route path="reportes" element={<Reportes />} />
+          <Route path="deudas" element={<Deudas />} />
         </Route>
 
       </Routes>
