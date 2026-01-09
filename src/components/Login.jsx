@@ -4,21 +4,30 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../config/axios';
 import ErrorMessage from './errorMessage';
 import { isAxiosError } from 'axios';
-
+import Cookies from 'js-cookie';
 
 
 export default function Login() {
   const[message, setMessage] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const navigate = useNavigate(); 
 
 
 const {register, handleSubmit, formState: { errors }} = useForm();
 
-const handaleLogin = async (formData) => {
+const handleLogin = async (formData) => {
   try {
     const {data} = await api.post('/api/auth/login', formData);
+    const token =data.token;
+
+    if (!token) return setMessage('No se recibió token de autenticación');
+
+    Cookies.set("AUTH_TOKEN", token, {
+      expires: 1,
+      secure:false,
+      sameSite: 'strict',
+
+    })
+
     navigate('/admin/resumen');
   } catch (error) {
     if (isAxiosError(error) && error.response){
@@ -57,7 +66,7 @@ const handaleLogin = async (formData) => {
 
 
 
-        <form className="space-y-6" onSubmit={handleSubmit(handaleLogin)}>
+        <form className="space-y-6" onSubmit={handleSubmit(handleLogin)}>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Correo Electrónico
